@@ -459,7 +459,7 @@ checksum = "0770833d60a970638e989b3fa9fd2bb1aaadcf88963d1659fd7d9990196ed2d6"
 
 [[package]]
 name = "zsign"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "bindgen",
  "cc",
