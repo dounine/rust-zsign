@@ -1,4 +1,8 @@
 extern crate cc;
+
+use std::env;
+use std::path::PathBuf;
+
 fn env<N: AsRef<str>>(name: N) -> String {
     option_env(name).expect("missing env var")
 }
@@ -37,4 +41,13 @@ fn main() {
     println!("cargo:rustc-link-lib=crypto");
     println!("cargo:rerun-if-changed=zsign/common/common.cpp");
     println!("cargo:rerun-if-changed=build.rs");
+
+    let bindings = bindgen::Builder::default()
+        .header("zsign/zsign.h")
+        .generate()
+        .expect("Unable to generate bindings");
+
+    bindings
+        .write_to_file("src/bindings.rs")
+        .expect("Couldn't write bindings!");
 }

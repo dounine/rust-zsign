@@ -22,5 +22,6 @@ unsafe {
 ```
 */
 pub mod zsign;
+pub mod error;
 
 pub use zsign::*;

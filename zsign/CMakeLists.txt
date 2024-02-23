@@ -39,7 +39,7 @@ list(APPEND LIB_LIST ${ZLIB_LIBRARIES})
 file(GLOB SRC common/*.cpp ./**.cpp zip/*.c cximage/*.cpp)
 
 add_executable(zsign ${SRC}
-        main.cpp
+        zsign.cpp
 )
 target_link_libraries(zsign ${LIB_LIST})
 

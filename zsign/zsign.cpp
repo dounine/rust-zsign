@@ -13,27 +13,33 @@
 
 using namespace std;
 
-int sign_ipa(
-        const char *ipa_path,
-        const char *key_path,
-        const char *mp_path,
-        const char *dylib_file_path,
-        const char *icon_path,
-        const char *tmp_folder_path,
+void sign_ipa(
+        const char *c_ipaPath,
+        const char *c_keyPath,
+        const char *c_mpPath,
+        const char *c_tmpFolderPath,
+        const char *c_dylibFilePath,
+        const char *c_iconPath,
+        const char *c_appName,
+        const char *c_appVersion,
+        const char *c_appBundleId,
+        bool tmpFolderDelete,
+        bool showLog,
         char *error
 ) {
-    string tmpFolderPath = tmp_folder_path;
-    string keyPath = key_path;
-    string mpPath = mp_path;
-    string ipaPath = ipa_path;
-    string dylibFilePath = dylib_file_path;
-    string iconPath = icon_path;
-
+    string ipaPath = c_ipaPath;
+    string keyPath = c_keyPath;
+    string mpPath = c_mpPath;
+    string tmpFolderPath = c_tmpFolderPath;
+    string dylibFilePath = c_dylibFilePath;
+    string iconPath = c_iconPath;
+    string appName = c_appName;
+    string appVersion = c_appVersion;
+    string appBundleId = c_appBundleId;
     ZSignAsset zSignAsset;
     if (!zSignAsset.Init("", keyPath, mpPath, "", "1")) {
-//        cerr << "init sign asset failed" << endl;
         snprintf(error, 1024, "init sign asset failed");
-        return -1;
+        return;
     }
 
     ZTimer timer;
@@ -43,7 +49,9 @@ int sign_ipa(
 
     CreateFolder(tmpFolderPath);
 
-    ZLog::PrintV("signing ipa: %s \n", tmpFolderPath.c_str());
+    if (showLog) {
+        ZLog::PrintV("signing ipa: %s \n", tmpFolderPath.c_str());
+    }
 
 
     if (IsZipFile(ipaPath)) {
@@ -51,41 +59,68 @@ int sign_ipa(
 //        unzip(ipaPath, tmpFolderPath);
     }
 
-    string appBundleId;
-    string appVersion;
-    string appName = "你好";
-
-    bool force = false;
-    bool weakInject = false;
-    bool enableCache = false;
-
     ZAppBundle bundle;
 
-    bool bRet = bundle.SignFolder(
-            &zSignAsset,
-            tmpFolderPath,
-            appBundleId,
-            appVersion,
-            appName,
-            iconPath,
-            dylibFilePath,
-            force,
-            weakInject,
-            enableCache
-    );
-    timer.PrintResult(bRet, "from sign.ipadump.com>>> Signed %s!", bRet ? "OK" : "Failed");
-    return 1;
+    if (!showLog) {
+        bundle.DisableLog();
+    }
+
+    bool bRet;
+    try {
+        bool force = false;
+        bool weakInject = false;
+        bool enableCache = false;
+
+        bRet = bundle.SignFolder(
+                &zSignAsset,
+                tmpFolderPath,
+                appBundleId,
+                appVersion,
+                appName,
+                iconPath,
+                dylibFilePath,
+                force,
+                weakInject,
+                enableCache
+        );
+    } catch (string e) {
+        snprintf(error, 1024, "%s", e.c_str());
+        bRet = false;
+    }
+    if (tmpFolderDelete) {
+        RemoveFolder(tmpFolderPath.c_str());
+    }
+    if (showLog) {
+        timer.PrintResult(bRet, "from sign.ipadump.com>>> Signed %s!", bRet ? "OK" : "Failed");
+    }
 }
 
 int main() {
     string keyPath = "/Users/lake/dounine/github/ipadump/zsign/ipa/key.pem";
     string mpPath = "/Users/lake/dounine/github/ipadump/zsign/ipa/lake_13_pm.mobileprovision";
     string ipaPath = "/Users/lake/dounine/github/ipadump/zsign/ipa/video.ipa";
-    string dylibFilePath = "/Users/lake/dounine/github/ipadump/zsign/ipa/d.dylib";
+    string dylibFilePath = "/Users/lake/dounine/github/ipadump/zsign/ipa/libs";
     string iconPath = "/Users/lake/dounine/github/ipadump/zsign/ipa/jpg_2_png.png";
 
     string tmpFolderPath = "/Users/lake/dounine/github/ipadump/zsign/tmp";
 
+    sign_ipa(
+            ipaPath.c_str(),
+            keyPath.c_str(),
+            mpPath.c_str(),
+            tmpFolderPath.c_str(),
+            dylibFilePath.c_str(),
+            iconPath.c_str(),
+            "你好",
+            "1.0",
+            "com.lake.video",
+            true,
+            true,
+            nullptr);
+
+    if (true) {
+        return 0;
+    }
 
     ZSignAsset zSignAsset;
     if (!zSignAsset.Init("", keyPath, mpPath, "", "1")) {
@@ -100,7 +135,7 @@ int main() {
 
     CreateFolder(tmpFolderPath);
 
-    ZLog::PrintV("signing ipa: %s \n", tmpFolderPath.c_str());
+//    ZLog::PrintV("signing ipa: %s \n", tmpFolderPath.c_str());
 
 
     if (IsZipFile(ipaPath)) {
@@ -118,19 +153,28 @@ int main() {
 
     ZAppBundle bundle;
 
-    bool bRet = bundle.SignFolder(
-            &zSignAsset,
-            tmpFolderPath,
-            appBundleId,
-            appVersion,
-            appName,
-            iconPath,
-            dylibFilePath,
-            force,
-            weakInject,
-            enableCache
-    );
-    timer.PrintResult(bRet, "from sign.ipadump.com>>> Signed %s!", bRet ? "OK" : "Failed");
+//    bundle.DisableLog();
+
+//    char *error = nullptr;
+
+    bool bRet;
+    try {
+        bRet = bundle.SignFolder(
+                &zSignAsset,
+                tmpFolderPath,
+                appBundleId,
+                appVersion,
+                appName,
+                iconPath,
+                dylibFilePath,
+                force,
+                weakInject,
+                enableCache
+        );
+    } catch (const string e) {
+        cout << "sign failed: " << e << endl;
+    }
+    timer.PrintResult(bRet, "签名%s!", bRet ? "成功" : "失败");
 
     return 0;
 }

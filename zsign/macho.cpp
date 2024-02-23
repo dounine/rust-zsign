@@ -45,7 +45,7 @@ bool ZMachO::NewArchO(uint8_t *pBase, uint32_t uLength) {
 }
 
 void ZMachO::FreeArchOes() {
-    for (auto archo : m_arrArchOes) {
+    for (auto archo: m_arrArchOes) {
         delete archo;
     }
     m_pBase = nullptr;
@@ -100,7 +100,7 @@ bool ZMachO::CloseFile() {
 }
 
 void ZMachO::PrintInfo() {
-    for (auto archo : m_arrArchOes) {
+    for (auto archo: m_arrArchOes) {
         archo->PrintInfo();
     }
 }
@@ -111,7 +111,7 @@ bool ZMachO::Sign(ZSignAsset *pSignAsset, bool bForce, string strBundleId, strin
         return false;
     }
 
-    for (auto archo : m_arrArchOes) {
+    for (auto archo: m_arrArchOes) {
         if (strBundleId.empty()) {
             JValue jvInfo;
             jvInfo.readPList(archo->m_strInfoPlist);
@@ -202,7 +202,7 @@ bool ZMachO::ReallocCodeSignSpace() {
 
         string strFatHeader;
         strFatHeader.append((const char *) &fath, sizeof(fat_header));
-        for (auto & arch : arrArches) {
+        for (auto &arch: arrArches) {
             strFatHeader.append((const char *) &arch, sizeof(fat_arch));
         }
 
@@ -239,15 +239,15 @@ bool ZMachO::ReallocCodeSignSpace() {
     return false;
 }
 
-bool ZMachO::InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreate) {
-    ZLog::PrintV("开始注入库 %s \n", szDyLibPath);
+bool ZMachO::InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreate, bool showLog) {
     vector<uint32_t> arrMachOesSizes;
-    for (auto & m_arrArchOe : m_arrArchOes) {
-        if (!m_arrArchOe->InjectDyLib(bWeakInject, szDyLibPath, bCreate)) {
-            ZLog::Error("Failed!");
-            return false;
+    for (auto &m_arrArchOe: m_arrArchOes) {
+        if (!m_arrArchOe->InjectDyLib(bWeakInject, szDyLibPath, bCreate, showLog)) {
+            if (showLog) {
+                ZLog::Error("Failed!");
+            }
+            throw "插件注入失败 " + string(szDyLibPath);
         }
     }
-    ZLog::Success("Success!");
     return true;
 }

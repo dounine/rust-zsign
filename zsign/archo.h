@@ -18,7 +18,7 @@ public:
 
     bool IsExecute();
 
-    bool InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreate);
+    bool InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreate, bool showLog);
 
     uint32_t ReallocCodeSignSpace(const string &strNewFile);
 

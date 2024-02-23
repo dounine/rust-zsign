@@ -9,6 +9,8 @@ public:
     ZAppBundle();
 
 public:
+    void DisableLog();
+
     bool SignFolder(ZSignAsset *pSignAsset,
                     const string &strFolder,
                     const string &strBundleID,
@@ -44,6 +46,7 @@ private:
 private:
     bool m_bForceSign;
     bool m_bWeakInject;
+    bool m_show_log = true;
     string m_strDyLibPath;
     set<string> dylibPaths;
     ZSignAsset *m_pSignAsset;

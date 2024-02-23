@@ -577,7 +577,7 @@ uint32_t ZArchO::ReallocCodeSignSpace(const string &strNewFile) {
     return uNewLength;
 }
 
-bool ZArchO::InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreate) {
+bool ZArchO::InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreate, bool showLog) {
     if (nullptr == m_pHeader) {
         return false;
     }
@@ -593,11 +593,15 @@ bool ZArchO::InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreat
                 if ((bWeakInject && (LC_LOAD_WEAK_DYLIB != uLoadType)) ||
                     (!bWeakInject && (LC_LOAD_DYLIB != uLoadType))) {
                     dlc->cmd = BO((uint32_t) (bWeakInject ? LC_LOAD_WEAK_DYLIB : LC_LOAD_DYLIB));
-                    ZLog::WarnV("DyLib Load Type Changed! %s -> %s\n",
-                                (LC_LOAD_DYLIB == uLoadType) ? "LC_LOAD_DYLIB" : "LC_LOAD_WEAK_DYLIB",
-                                bWeakInject ? "LC_LOAD_WEAK_DYLIB" : "LC_LOAD_DYLIB");
+                    if (showLog) {
+                        ZLog::WarnV("DyLib Load Type Changed! %s -> %s\n",
+                                    (LC_LOAD_DYLIB == uLoadType) ? "LC_LOAD_DYLIB" : "LC_LOAD_WEAK_DYLIB",
+                                    bWeakInject ? "LC_LOAD_WEAK_DYLIB" : "LC_LOAD_DYLIB");
+                    }
                 } else {
-                    ZLog::WarnV("DyLib Is Already Existed! %s\n", szDyLibPath);
+                    if (showLog) {
+                        ZLog::WarnV("插件已存在 -> %s\n", szDyLibPath);
+                    }
                 }
                 return true;
             }
@@ -610,9 +614,11 @@ bool ZArchO::InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreat
     uint32_t uDyLibCommandSize = sizeof(dylib_command) + uDylibPathLength + uDylibPathPadding;
     if (m_uLoadCommandsFreeSpace > 0 && m_uLoadCommandsFreeSpace < uDyLibCommandSize) // some bin doesn't have '__text'
     {
-        ZLog::Error(
-                "Can't Find Free Space Of LoadCommands For LC_LOAD_DYLIB Or LC_LOAD_WEAK_DYLIB!\n");
-        return false;
+        if(showLog){
+            ZLog::Error(
+                    "Can't Find Free Space Of LoadCommands For LC_LOAD_DYLIB Or LC_LOAD_WEAK_DYLIB!\n");
+        }
+        throw "Can't Find Free Space Of LoadCommands For LC_LOAD_DYLIB Or LC_LOAD_WEAK_DYLIB!";
     }
 
     //add
@@ -634,6 +640,9 @@ bool ZArchO::InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreat
     m_pHeader->sizeofcmds = BO(BO(m_pHeader->sizeofcmds) + uDyLibCommandSize);
 
     bCreate = true;
+    if (showLog) {
+        ZLog::WarnV("插件注入成功 -> %s\n", szDyLibPath);
+    }
     return true;
 }
 
