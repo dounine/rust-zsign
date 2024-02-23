@@ -6,3 +6,4 @@ ipa/
 .zsign_cache/
 target/
 **/tmp
+ipa/
