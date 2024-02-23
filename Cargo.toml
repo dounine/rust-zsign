@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["lake <amwoqmgo@mail.com>"]
 description = "ipa sign"
 repository = "https://github.com/dounine/rust-zsign"
+license = "MIT"
 build = "build.rs"
 
 exclude = ["ipa"]
