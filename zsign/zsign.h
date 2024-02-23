@@ -1,4 +1,8 @@
+#ifndef _ZSIGN_H
+
+#ifdef __cplusplus
 extern "C" {
+#endif
     void sign_ipa(
             const char *c_ipaPath,
             const char *c_keyPath,
@@ -9,8 +13,12 @@ extern "C" {
             const char *c_appName,
             const char *c_appVersion,
             const char *c_appBundleId,
-            bool tmpFolderDelete,
-            bool showLog,
+            int tmpFolderDelete,
+            int showLog,
             char *error
     );
+#ifdef __cplusplus
 }
+#endif
+
+#endif

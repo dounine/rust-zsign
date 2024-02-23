@@ -1,3 +1,5 @@
+use zsign::ZsignBuilder;
+
 fn main() {
     let ipa_path = "./ipa/video.ipa";
     let key_path = "./ipa/key.pem";
@@ -6,19 +8,23 @@ fn main() {
     let icon_path = "./ipa/icon.png";
     let tmp_folder_path = "./ipa/tmp";
 
-    let mut error_mut: [std::os::raw::c_char; 1024] = [0; 1024];
-    let result = zsign::sign(
-        ipa_path,
-        key_path,
-        mp_path,
-        tmp_folder_path,
-        None,
-        None,
-        None,
-        None,
-        None,
-        true,
-        true,
-    );
-    result.unwrap();
+    ZsignBuilder::new()
+        .build(ipa_path.to_string(), key_path.to_string(), mp_path.to_string())
+        .unwrap();
+
+
+    // let result = zsign::sign(
+    //     ipa_path,
+    //     key_path,
+    //     mp_path,
+    //     tmp_folder_path,
+    //     None,
+    //     None,
+    //     None,
+    //     None,
+    //     None,
+    //     true,
+    //     true,
+    // );
+    // result.unwrap();
 }

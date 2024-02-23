@@ -23,10 +23,12 @@ void sign_ipa(
         const char *c_appName,
         const char *c_appVersion,
         const char *c_appBundleId,
-        bool tmpFolderDelete,
-        bool showLog,
+        int tmpFolderDelete,
+        int showLog,
         char *error
 ) {
+//    bool tmpFolderDelete=true;
+//        bool showLog = true;
     string ipaPath = c_ipaPath;
     string keyPath = c_keyPath;
     string mpPath = c_mpPath;
