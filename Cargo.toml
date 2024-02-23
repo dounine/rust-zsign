@@ -1,7 +1,10 @@
 [package]
 name = "zsign"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
+authors = ["lake <amwoqmgo@mail.com>"]
+description = "ipa sign"
+repository = "https://github.com/dounine/rust-zsign"
 build = "build.rs"
 
 exclude = ["ipa"]
