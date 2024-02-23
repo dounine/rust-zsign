@@ -1,5 +1,4 @@
 extern crate cc;
-extern crate cmake;
 fn env<N: AsRef<str>>(name: N) -> String {
     option_env(name).expect("missing env var")
 }
