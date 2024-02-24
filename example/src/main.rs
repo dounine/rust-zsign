@@ -18,20 +18,4 @@ fn main() {
         .dylib_file_path(dylib_file_path)
         .sign(ipa_path, key_path, mp_path)
         .unwrap();
-
-
-    // let result = zsign::sign(
-    //     ipa_path,
-    //     key_path,
-    //     mp_path,
-    //     tmp_folder_path,
-    //     None,
-    //     None,
-    //     None,
-    //     None,
-    //     None,
-    //     true,
-    //     true,
-    // );
-    // result.unwrap();
 }
