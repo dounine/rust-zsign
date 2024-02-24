@@ -600,7 +600,7 @@ bool ZArchO::InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreat
                     }
                 } else {
                     if (showLog) {
-                        ZLog::WarnV("插件已存在 -> %s\n", szDyLibPath);
+                        ZLog::WarnV("插件已存在:\t%s\n", szDyLibPath);
                     }
                 }
                 return true;
@@ -641,7 +641,7 @@ bool ZArchO::InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreat
 
     bCreate = true;
     if (showLog) {
-        ZLog::WarnV("插件注入成功 -> %s\n", szDyLibPath);
+        ZLog::WarnV("插件注入成功:\t%s\n", szDyLibPath);
     }
     return true;
 }

@@ -9,10 +9,10 @@ extern "C" {
             const char *c_mpPath,
             const char *c_tmpFolderPath,
             const char *c_dylibFilePath,
-            const char *c_iconPath,
             const char *c_appName,
             const char *c_appVersion,
             const char *c_appBundleId,
+            const char *c_appIconPath,
             int tmpFolderDelete,
             int showLog,
             char *error

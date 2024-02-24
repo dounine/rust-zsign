@@ -9,7 +9,14 @@ fn main() {
     let tmp_folder_path = "./ipa/tmp";
 
     ZsignBuilder::new()
-        .build(ipa_path.to_string(), key_path.to_string(), mp_path.to_string())
+        .app_icon_path(icon_path)
+        .app_name("hello")
+        .app_version("1.0.0")
+        .app_bundle_id("com.lake.hello")
+        .tmp_folder_path(tmp_folder_path)
+        .tmp_folder_no_delete()
+        .dylib_file_path(dylib_file_path)
+        .sign(ipa_path, key_path, mp_path)
         .unwrap();
 
 

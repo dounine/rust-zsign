@@ -19,10 +19,10 @@ void sign_ipa(
         const char *c_mpPath,
         const char *c_tmpFolderPath,
         const char *c_dylibFilePath,
-        const char *c_iconPath,
         const char *c_appName,
         const char *c_appVersion,
         const char *c_appBundleId,
+        const char *c_appIconPath,
         int tmpFolderDelete,
         int showLog,
         char *error
@@ -34,7 +34,7 @@ void sign_ipa(
     string mpPath = c_mpPath;
     string tmpFolderPath = c_tmpFolderPath;
     string dylibFilePath = c_dylibFilePath;
-    string iconPath = c_iconPath;
+    string iconPath = c_appIconPath;
     string appName = c_appName;
     string appVersion = c_appVersion;
     string appBundleId = c_appBundleId;
@@ -46,7 +46,18 @@ void sign_ipa(
 
     ZTimer timer;
     if (tmpFolderPath.empty()) {
-        StringFormat(tmpFolderPath, "/tmp/zsign_folder_%llu_%s", timer.Reset(), GenerateUUID().c_str());
+        const char* tempDir = getenv("TMPDIR");
+        if (tempDir == nullptr) {
+            tempDir = getenv("TEMP");
+        }
+        if (tempDir == nullptr) {
+            tempDir = getenv("TMP");
+        }
+        if (tempDir == nullptr) {
+            tempDir = "/tmp";
+        }
+        StringFormat(tmpFolderPath, "zsign_folder_%llu_%s", timer.Reset(), GenerateUUID().c_str());
+        tmpFolderPath = tempDir + tmpFolderPath;
     }
 
     CreateFolder(tmpFolderPath);
@@ -93,18 +104,18 @@ void sign_ipa(
         RemoveFolder(tmpFolderPath.c_str());
     }
     if (showLog) {
-        timer.PrintResult(bRet, "from sign.ipadump.com>>> Signed %s!", bRet ? "OK" : "Failed");
+        timer.PrintResult(bRet, "Signed %s!", bRet ? "OK" : "Failed");
     }
 }
 
 int main() {
-    string keyPath = "/Users/lake/dounine/github/ipadump/zsign/ipa/key.pem";
-    string mpPath = "/Users/lake/dounine/github/ipadump/zsign/ipa/lake_13_pm.mobileprovision";
-    string ipaPath = "/Users/lake/dounine/github/ipadump/zsign/ipa/video.ipa";
-    string dylibFilePath = "/Users/lake/dounine/github/ipadump/zsign/ipa/libs";
-    string iconPath = "/Users/lake/dounine/github/ipadump/zsign/ipa/jpg_2_png.png";
+    string keyPath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/key.pem";
+    string mpPath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/lake_13_pm.mobileprovision";
+    string ipaPath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/video.ipa";
+    string dylibFilePath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/libs";
+    string iconPath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/icon.png";
 
-    string tmpFolderPath = "/Users/lake/dounine/github/ipadump/zsign/tmp";
+    string tmpFolderPath = "./tmp";
 
     sign_ipa(
             ipaPath.c_str(),
@@ -112,10 +123,10 @@ int main() {
             mpPath.c_str(),
             tmpFolderPath.c_str(),
             dylibFilePath.c_str(),
-            iconPath.c_str(),
             "你好",
             "1.0",
             "com.lake.video",
+            iconPath.c_str(),
             true,
             true,
             nullptr);

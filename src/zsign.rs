@@ -31,28 +31,28 @@ impl ZsignBuilder {
             show_log: true,
         }
     }
-    pub fn tmp_folder_path(mut self, tmp_folder_path: String) -> Self {
-        self.tmp_folder_path = Some(tmp_folder_path);
+    pub fn tmp_folder_path<T: AsRef<str>>(mut self, tmp_folder_path: T) -> Self {
+        self.tmp_folder_path = Some(tmp_folder_path.as_ref().to_string());
         self
     }
-    pub fn dylib_file_path(mut self, dylib_file_path: String) -> Self {
-        self.dylib_file_path = Some(dylib_file_path);
+    pub fn dylib_file_path<T: AsRef<str>>(mut self, dylib_file_path: T) -> Self {
+        self.dylib_file_path = Some(dylib_file_path.as_ref().to_string());
         self
     }
-    pub fn app_icon_path(mut self, app_icon_path: String) -> Self {
-        self.app_icon_path = Some(app_icon_path);
+    pub fn app_icon_path<T: AsRef<str>>(mut self, app_icon_path: T) -> Self {
+        self.app_icon_path = Some(app_icon_path.as_ref().to_string());
         self
     }
-    pub fn app_name(mut self, app_name: String) -> Self {
-        self.app_name = Some(app_name);
+    pub fn app_name<T: AsRef<str>>(mut self, app_name: T) -> Self {
+        self.app_name = Some(app_name.as_ref().to_string());
         self
     }
-    pub fn app_version(mut self, app_version: String) -> Self {
-        self.app_version = Some(app_version);
+    pub fn app_version<T: AsRef<str>>(mut self, app_version: T) -> Self {
+        self.app_version = Some(app_version.as_ref().to_string());
         self
     }
-    pub fn app_bundle_id(mut self, app_bundle_id: String) -> Self {
-        self.app_bundle_id = Some(app_bundle_id);
+    pub fn app_bundle_id<T: AsRef<str>>(mut self, app_bundle_id: T) -> Self {
+        self.app_bundle_id = Some(app_bundle_id.as_ref().to_string());
         self
     }
     pub fn tmp_folder_delete(mut self) -> Self {
@@ -71,17 +71,19 @@ impl ZsignBuilder {
         self.show_log = false;
         self
     }
-    pub fn build(self, ipa_path: String, key_path: String, mp_path: String) -> Result<(), ZsignError> {
+    pub fn sign<T>(self, ipa_path: T, key_path: T, mp_path: T) -> Result<(), ZsignError>
+        where T: AsRef<str>
+    {
         let dylib_file_path_default = self.dylib_file_path
             .unwrap_or_default();
         let app_icon_path_default = self.app_icon_path
             .unwrap_or_default();
         let ipa_path =
-            std::ffi::CString::new(ipa_path).map_err(|e| ZsignError::Msg(e.to_string()))?;
+            std::ffi::CString::new(ipa_path.as_ref()).map_err(|e| ZsignError::Msg(e.to_string()))?;
         let key_path =
-            std::ffi::CString::new(key_path).map_err(|e| ZsignError::Msg(e.to_string()))?;
+            std::ffi::CString::new(key_path.as_ref()).map_err(|e| ZsignError::Msg(e.to_string()))?;
         let mp_path =
-            std::ffi::CString::new(mp_path).map_err(|e| ZsignError::Msg(e.to_string()))?;
+            std::ffi::CString::new(mp_path.as_ref()).map_err(|e| ZsignError::Msg(e.to_string()))?;
         let tmp_folder_path_default = self.tmp_folder_path
             .unwrap_or_default();
         let tmp_folder_path = std::ffi::CString::new(tmp_folder_path_default)

@@ -305,7 +305,7 @@ bool ZAppBundle::SignNode(JValue &jvNode) {
     string strExePath = strBaseFolder + "/" + strBundleExe;
 
     if (m_show_log) {
-        ZLog::PrintV("签名目录 -> %s (%s)\n",
+        ZLog::PrintV("签名目录:\t(%s)\n",
                      ("/" == strFolder) ? basename((char *) m_strAppFolder.c_str()) : strFolder.c_str(),
                      strBundleExe.c_str());
     }
@@ -361,7 +361,7 @@ bool ZAppBundle::SignNode(JValue &jvNode) {
     if ("/" == strFolder && !dylibPaths.empty()) {
         for (auto &fPath: dylibPaths) {
             if (m_show_log) {
-                ZLog::PrintV("插件注入 -> %s\n", fPath.c_str());
+                ZLog::PrintV("插件注入:\t%s\n", fPath.c_str());
             }
             macho.InjectDyLib(m_bWeakInject, fPath.c_str(), bForceSign, m_show_log);
         }
@@ -634,7 +634,7 @@ bool ZAppBundle::SignFolder(ZSignAsset *pSignAsset,
                 string strFileName = basename((char *) strDyLibFile.c_str());
                 if (WriteFile(strDyLibData, "%s/%s", m_strAppFolder.c_str(), strFileName.c_str())) {
                     if (m_show_log) {
-                        ZLog::PrintV("Inject %s\n", strDyLibFile.c_str());
+                        ZLog::PrintV("Inject:\t%s\n", strDyLibFile.c_str());
                     }
                     string tmpDyLibPath;
                     StringFormat(tmpDyLibPath, "@executable_path/%s", strFileName.c_str());
@@ -671,7 +671,7 @@ bool ZAppBundle::SignFolder(ZSignAsset *pSignAsset,
         ZLog::PrintV("Signing: \t%s ...\n", m_strAppFolder.c_str());
         ZLog::PrintV("AppName: \t%s\n", jvRoot["name"].asCString());
         ZLog::PrintV("AppBundleId: \t%s\n", jvRoot["bid"].asCString());
-        ZLog::PrintV("BundleVer: \t%s\n", jvRoot["bver"].asCString());
+        ZLog::PrintV("BundleVersion: \t%s\n", jvRoot["bver"].asCString());
         ZLog::PrintV("TeamId: \t%s\n", m_pSignAsset->m_strTeamId.c_str());
         ZLog::PrintV("SubjectCN: \t%s\n", m_pSignAsset->m_strSubjectCN.c_str());
         ZLog::PrintV("ReadCache: \t%s\n", m_bForceSign ? "NO" : "YES");
