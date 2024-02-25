@@ -2,14 +2,14 @@ use crate::error::ZsignError;
 
 #[derive(Debug)]
 pub struct ZsignBuilder {
-    tmp_folder_path: Option<String>,
     dylib_file_path: Option<String>,
     app_icon_path: Option<String>,
     app_name: Option<String>,
     app_version: Option<String>,
     app_bundle_id: Option<String>,
-    tmp_folder_delete: bool,
     show_log: bool,
+    zip_ipa: bool,
+    zip_level: u8,
 }
 
 unsafe impl Send for ZsignBuilder {}
@@ -21,19 +21,15 @@ include!("../bindings/bindings.rs");
 impl ZsignBuilder {
     pub fn new() -> Self {
         Self {
-            tmp_folder_path: None,
             dylib_file_path: None,
             app_icon_path: None,
             app_name: None,
             app_version: None,
             app_bundle_id: None,
-            tmp_folder_delete: true,
             show_log: true,
+            zip_ipa: true,
+            zip_level: 3,
         }
-    }
-    pub fn tmp_folder_path<T: AsRef<str>>(mut self, tmp_folder_path: T) -> Self {
-        self.tmp_folder_path = Some(tmp_folder_path.as_ref().to_string());
-        self
     }
     pub fn dylib_file_path<T: AsRef<str>>(mut self, dylib_file_path: T) -> Self {
         self.dylib_file_path = Some(dylib_file_path.as_ref().to_string());
@@ -55,12 +51,12 @@ impl ZsignBuilder {
         self.app_bundle_id = Some(app_bundle_id.as_ref().to_string());
         self
     }
-    pub fn tmp_folder_delete(mut self) -> Self {
-        self.tmp_folder_delete = true;
+    pub fn zip_ipa(mut self) -> Self {
+        self.zip_ipa = true;
         self
     }
-    pub fn tmp_folder_no_delete(mut self) -> Self {
-        self.tmp_folder_delete = false;
+    pub fn no_zip_ipa(mut self) -> Self {
+        self.zip_ipa = false;
         self
     }
     pub fn show_log(mut self) -> Self {
@@ -71,7 +67,7 @@ impl ZsignBuilder {
         self.show_log = false;
         self
     }
-    pub fn sign<T>(self, ipa_path: T, key_path: T, mp_path: T) -> Result<(), ZsignError>
+    pub fn sign<T>(self, ipa_path: T, key_path: T, mp_path: T, output_path: T) -> Result<(), ZsignError>
         where T: AsRef<str>
     {
         let dylib_file_path_default = self.dylib_file_path
@@ -84,15 +80,11 @@ impl ZsignBuilder {
             std::ffi::CString::new(key_path.as_ref()).map_err(|e| ZsignError::Msg(e.to_string()))?;
         let mp_path =
             std::ffi::CString::new(mp_path.as_ref()).map_err(|e| ZsignError::Msg(e.to_string()))?;
-        let tmp_folder_path_default = self.tmp_folder_path
-            .unwrap_or_default();
-        let tmp_folder_path = std::ffi::CString::new(tmp_folder_path_default)
-            .map_err(|e| ZsignError::Msg(e.to_string()))?;
         let dylib_file_path = std::ffi::CString::new(dylib_file_path_default)
             .map_err(|e| ZsignError::Msg(e.to_string()))?;
         let app_icon_path = std::ffi::CString::new(app_icon_path_default)
             .map_err(|e| ZsignError::Msg(e.to_string()))?;
-
+        let output_path = std::ffi::CString::new(output_path.as_ref()).map_err(|e| ZsignError::Msg(e.to_string()))?;
         let app_name_default = self.app_name.unwrap_or_default();
         let app_name =
             std::ffi::CString::new(app_name_default).map_err(|e| ZsignError::Msg(e.to_string()))?;
@@ -104,7 +96,8 @@ impl ZsignBuilder {
             .unwrap_or_default();
         let app_bundle_id = std::ffi::CString::new(app_bundle_id_default)
             .map_err(|e| ZsignError::Msg(e.to_string()))?;
-        let tmp_folder_delete = if self.tmp_folder_delete {
+        let zip_level = std::ffi::c_int::from(self.zip_level);
+        let zip_ipa = if self.zip_ipa {
             std::ffi::c_int::from(1)
         } else {
             std::ffi::c_int::from(0)
@@ -120,13 +113,14 @@ impl ZsignBuilder {
                 ipa_path.as_ptr(),
                 key_path.as_ptr(),
                 mp_path.as_ptr(),
-                tmp_folder_path.as_ptr(),
                 dylib_file_path.as_ptr(),
                 app_name.as_ptr(),
                 app_version.as_ptr(),
                 app_bundle_id.as_ptr(),
                 app_icon_path.as_ptr(),
-                tmp_folder_delete,
+                output_path.as_ptr(),
+                zip_level,
+                zip_ipa,
                 show_log,
                 error_mut.as_mut_ptr(),
             );

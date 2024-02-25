@@ -17,58 +17,69 @@ void sign_ipa(
         const char *c_ipaPath,
         const char *c_keyPath,
         const char *c_mpPath,
-        const char *c_tmpFolderPath,
         const char *c_dylibFilePath,
         const char *c_appName,
         const char *c_appVersion,
         const char *c_appBundleId,
         const char *c_appIconPath,
-        int tmpFolderDelete,
+        const char *c_outputPath,
+        int zipLevel,
+        int zipIpa,
         int showLog,
         char *error
 ) {
-//    bool tmpFolderDelete=true;
-//        bool showLog = true;
     string ipaPath = c_ipaPath;
     string keyPath = c_keyPath;
     string mpPath = c_mpPath;
-    string tmpFolderPath = c_tmpFolderPath;
+    string outputFile = GetAbsolutPath(c_outputPath);
     string dylibFilePath = c_dylibFilePath;
     string iconPath = c_appIconPath;
     string appName = c_appName;
     string appVersion = c_appVersion;
     string appBundleId = c_appBundleId;
+
+    ZTimer timer;
+    if (outputFile.empty()) {
+        if(showLog){
+            ZLog::ErrorV("output path is empty\n");
+        }
+        snprintf(error, 1024, "output path is empty");
+        return;
+//        const char *tempDir = getenv("TMPDIR");
+//        if (tempDir == nullptr) {
+//            tempDir = getenv("TEMP");
+//        }
+//        if (tempDir == nullptr) {
+//            tempDir = getenv("TMP");
+//        }
+//        if (tempDir == nullptr) {
+//            tempDir = "/tmp";
+//        }
+//        StringFormat(outputFile, "zsign_folder_%llu_%s", timer.Reset(), GenerateUUID().c_str());
+//        outputFile = tempDir + outputFile;
+    }
+
     ZSignAsset zSignAsset;
     if (!zSignAsset.Init("", keyPath, mpPath, "", "1")) {
         snprintf(error, 1024, "init sign asset failed");
         return;
     }
 
-    ZTimer timer;
-    if (tmpFolderPath.empty()) {
-        const char* tempDir = getenv("TMPDIR");
-        if (tempDir == nullptr) {
-            tempDir = getenv("TEMP");
+    if (!CreateFolder(outputFile.c_str())) {
+        if (showLog) {
+            ZLog::ErrorV("创建目录 %s 失败!", outputFile.c_str());
         }
-        if (tempDir == nullptr) {
-            tempDir = getenv("TMP");
-        }
-        if (tempDir == nullptr) {
-            tempDir = "/tmp";
-        }
-        StringFormat(tmpFolderPath, "zsign_folder_%llu_%s", timer.Reset(), GenerateUUID().c_str());
-        tmpFolderPath = tempDir + tmpFolderPath;
+        snprintf(error, 1024, "创建目录 %s 失败!", outputFile.c_str());
+        return;
     }
 
-    CreateFolder(tmpFolderPath);
-
     if (showLog) {
-        ZLog::PrintV("signing ipa: %s \n", tmpFolderPath.c_str());
+        ZLog::PrintV("签名ipa: %s \n", outputFile.c_str());
     }
 
 
     if (IsZipFile(ipaPath)) {
-        SystemExec("unzip -qq -n -d '%s' '%s'", tmpFolderPath.c_str(), ipaPath.c_str());
+        SystemExec("unzip -qq -n -d '%s' '%s'", outputFile.c_str(), ipaPath.c_str());
 //        unzip(ipaPath, tmpFolderPath);
     }
 
@@ -86,7 +97,7 @@ void sign_ipa(
 
         bRet = bundle.SignFolder(
                 &zSignAsset,
-                tmpFolderPath,
+                outputFile,
                 appBundleId,
                 appVersion,
                 appName,
@@ -100,11 +111,43 @@ void sign_ipa(
         snprintf(error, 1024, "%s", e.c_str());
         bRet = false;
     }
-    if (tmpFolderDelete) {
-        RemoveFolder(tmpFolderPath.c_str());
+    if (bRet && zipIpa) {
+        if (!outputFile.empty()) {
+            timer.Reset();
+            size_t pos = bundle.m_strAppFolder.rfind("/Payload");
+            if (string::npos == pos) {
+                ZLog::Error("找不到Payload目录!\n");
+                return;
+            }
+
+            ZLog::PrintV("压缩中: \t%s ... \n", outputFile.c_str());
+            string strBaseFolder = bundle.m_strAppFolder.substr(0, pos);
+            char szOldFolder[PATH_MAX] = {0};
+            if (nullptr != getcwd(szOldFolder, PATH_MAX)) {
+                if (0 == chdir(strBaseFolder.c_str())) {
+                    zipLevel = zipLevel > 9 ? 9 : zipLevel;
+                    RemoveFile(outputFile.c_str());
+                    SystemExec("zip -q -%u -r '%s%s' Payload", zipLevel, outputFile.c_str(), ".tmp");
+                    RemoveFolder(outputFile.c_str());
+                    RenameFile((outputFile + ".tmp").c_str(), outputFile.c_str());
+                    chdir(szOldFolder);
+                    if (!IsFileExists(outputFile.c_str())) {
+                        ZLog::Error("压缩失败!\n");
+                        return;
+                    }
+                }
+            }
+            timer.PrintResult(true, "压缩成功! (%s)",
+                              GetFileSizeString(outputFile.c_str()).c_str());
+        } else {
+            timer.PrintResult(true, "不压缩!");
+        }
     }
+//    if (tmpFolderDelete) {
+//        RemoveFolder(tmpFolderPath.c_str());
+//    }
     if (showLog) {
-        timer.PrintResult(bRet, "Signed %s!", bRet ? "OK" : "Failed");
+        timer.PrintResult(bRet, "签名 %s!", bRet ? "OK" : "Failed");
     }
 }
 
@@ -121,12 +164,13 @@ int main() {
             ipaPath.c_str(),
             keyPath.c_str(),
             mpPath.c_str(),
-            tmpFolderPath.c_str(),
             dylibFilePath.c_str(),
             "你好",
             "1.0",
             "com.lake.video",
             iconPath.c_str(),
+            "./output.ipa",
+            3,
             true,
             true,
             nullptr);
@@ -146,7 +190,7 @@ int main() {
         StringFormat(tmpFolderPath, "/tmp/zsign_folder_%llu_%s", timer.Reset(), GenerateUUID().c_str());
     }
 
-    CreateFolder(tmpFolderPath);
+    CreateFolder(tmpFolderPath.c_str());
 
 //    ZLog::PrintV("signing ipa: %s \n", tmpFolderPath.c_str());
 

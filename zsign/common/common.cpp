@@ -7,6 +7,16 @@
 #include <fstream>
 #include <openssl/sha.h>
 
+#ifdef _WIN32
+#include <direct.h> // For Windows
+#define GetCurrentDir _getcwd
+#else
+
+#include <unistd.h> // For POSIX
+
+#define GetCurrentDir getcwd
+#endif
+
 #define PARSEVALIST(szFormatArgs, szArgs)                       \
     ZBuffer buffer;                                             \
     char szBuffer[PATH_MAX] = {0};                              \
@@ -165,12 +175,35 @@ bool IsFolderV(const char *szFormatPath, ...) {
     return IsFolder(szFolder);
 }
 
-bool CreateFolder(const string &szFolder) {
+string GetAbsolutPath(const string &szPath) {
+    string szAbsolutePath = szPath;
+    //判断是否是绝对路径
+    if (szAbsolutePath[0] == '/') {
+        return szAbsolutePath;
+    }
+    //删除./开头
+    if (szAbsolutePath[0] == '.' && szAbsolutePath[1] == '/') {
+        szAbsolutePath = szAbsolutePath.substr(2);
+    }
+    char cwd[1024];
+    if (GetCurrentDir(cwd, sizeof(cwd)) != nullptr) {
+        string absolutePath(cwd);
+        if (absolutePath.back() != '/' && absolutePath.back() != '\\') {
+            absolutePath += "/";
+        }
+        absolutePath += szAbsolutePath;
+        return absolutePath;
+    } else {
+        return ""; // Failed to get current directory
+    }
+}
+
+bool CreateFolder(const char *szFolder) {
     if (!IsFolder(szFolder)) {
 #if defined(WINDOWS)
         return (0 == mkdir(szFolder));
 #else
-        return (0 == mkdir(szFolder.c_str(), 0755));
+        return (0 == mkdir(szFolder, 0755));
 #endif
     }
     return false;
@@ -193,7 +226,7 @@ bool CreateFolders(const string &folderPath) {
         string subFolder = folder.substr(0, pos);
         if (subFolder != ".") {
             if (!IsFolderExists(subFolder)) {
-                if (!CreateFolder(subFolder)) {
+                if (!CreateFolder(subFolder.c_str())) {
                     return false;
                 }
             }
@@ -261,6 +294,10 @@ bool RemoveFolder(const char *szFolder) {
         return true;
     }
     return nftw(szFolder, RemoveFolderCallBack, 64, FTW_DEPTH | FTW_PHYS);
+}
+
+bool RenameFile(const char *szOldFile, const char *szNewFile) {
+    return (0 == rename(szOldFile, szNewFile));
 }
 
 bool RemoveFolderV(const char *szFormatPath, ...) {
@@ -659,7 +696,7 @@ uint64_t ZTimer::Print(const char *szFormatArgs, ...) {
 uint64_t ZTimer::PrintResult(bool bSuccess, const char *szFormatArgs, ...) {
     PARSEVALIST(szFormatArgs, szFormat)
     uint64_t uElapse = GetMicroSecond() - m_uBeginTime;
-    ZLog::PrintResultV(bSuccess, "%s (%.03fs)\n", szFormat, uElapse / 1000000.0);
+    ZLog::PrintResultV(bSuccess, "%s (%.03fs)", szFormat, uElapse / 1000000.0);
     return Reset();
 }
 

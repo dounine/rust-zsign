@@ -68,7 +68,7 @@ bool IsFolder(const string &szFolder);
 
 bool IsFolderV(const char *szFormatPath, ...);
 
-bool CreateFolder(const string &szFolder);
+bool CreateFolder(const char *szFolder);
 
 bool CreateFolders(const string &folderPath);
 
@@ -83,6 +83,10 @@ bool RemoveFileV(const char *szFormatPath, ...);
 bool RemoveFolder(const char *szFolder);
 
 bool RemoveFolderV(const char *szFormatPath, ...);
+
+bool RenameFile(const char *szOldFile, const char *szNewFile);
+
+string GetAbsolutPath(const string &szPath);
 
 bool IsFileExists(const char *szFile);
 
