@@ -18,12 +18,19 @@ public:
                     const string &strDisplayName,
                     const string &strIconPath,
                     const string &strDyLibFile,
+                    const string &strDylibPrefix,
+                    bool deletePlugIns,
+                    bool deleteWatchPlugins,
+                    bool deleteDeviceSupport,
+                    bool deleteSchemeUrl,
+                    bool enableFileAccess,
+                    bool sign,
                     bool bForce,
                     bool bWeakInject,
                     bool bEnableCache);
 
 private:
-    bool SignNode(JValue &jvNode);
+    bool SignNode(JValue &jvNode, bool sign);
 
     void GetNodeChangedFiles(JValue &jvNode);
 

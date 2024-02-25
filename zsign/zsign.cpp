@@ -14,25 +14,35 @@
 using namespace std;
 
 void sign_ipa(
-        const char *c_ipaPath,
-        const char *c_keyPath,
-        const char *c_mpPath,
-        const char *c_dylibFilePath,
-        const char *c_appName,
-        const char *c_appVersion,
-        const char *c_appBundleId,
-        const char *c_appIconPath,
-        const char *c_outputPath,
-        int zipLevel,
-        int zipIpa,
-        int showLog,
-        char *error
+        const char *c_ipaPath,//签名的ipa路径
+        const char *c_p12Path,//签名的p12路径
+        const char *c_p12Password,//p12密码
+        const char *c_mpPath,//mobileprovision路径
+        const char *c_dylibFilePath,//dylib路径,目录也可以
+        const char *c_dylibPrefixPath,//dylib注入位置
+        const char *c_appName,//app名称
+        const char *c_appVersion,//app版本
+        const char *c_appBundleId,//app包名
+        const char *c_appIconPath,//app图标路径
+        const char *c_outputPath,//输出路径
+        int deletePlugIns,//删除插件
+        int deleteWatchPlugIns,//删除手表插件
+        int deleteDeviceSupport,//删除设备机型限制
+        int deleteSchemeURL,//删除schemeURL应用跳转
+        int enableFileAccess,//是否启用文件访问
+        int sign,//是否签名
+        int zipLevel,//压缩等级1~9
+        int zipIpa,//是否压缩Payload
+        int showLog,//是否显示日志
+        char *error//错误信息
 ) {
     string ipaPath = c_ipaPath;
-    string keyPath = c_keyPath;
+    string p12Path = c_p12Path;
+    string p12Password = c_p12Password;
     string mpPath = c_mpPath;
     string outputFile = GetAbsolutPath(c_outputPath);
     string dylibFilePath = c_dylibFilePath;
+    string dylibPrefixPath = c_dylibPrefixPath;
     string iconPath = c_appIconPath;
     string appName = c_appName;
     string appVersion = c_appVersion;
@@ -40,7 +50,7 @@ void sign_ipa(
 
     ZTimer timer;
     if (outputFile.empty()) {
-        if(showLog){
+        if (showLog) {
             ZLog::ErrorV("output path is empty\n");
         }
         snprintf(error, 1024, "output path is empty");
@@ -60,18 +70,17 @@ void sign_ipa(
     }
 
     ZSignAsset zSignAsset;
-    if (!zSignAsset.Init("", keyPath, mpPath, "", "1")) {
+    if (!zSignAsset.Init("", p12Path, mpPath, "", p12Password)) {
         snprintf(error, 1024, "init sign asset failed");
         return;
     }
 
-    if (!CreateFolder(outputFile.c_str())) {
-        if (showLog) {
-            ZLog::ErrorV("创建目录 %s 失败!", outputFile.c_str());
-        }
-        snprintf(error, 1024, "创建目录 %s 失败!", outputFile.c_str());
-        return;
-    }
+    CreateFolder(outputFile.c_str());
+//        if (showLog) {
+//            ZLog::ErrorV("创建目录 %s 失败!", outputFile.c_str());
+//        }
+//        snprintf(error, 1024, "创建目录 %s 失败!", outputFile.c_str());
+//        return;
 
     if (showLog) {
         ZLog::PrintV("签名ipa: %s \n", outputFile.c_str());
@@ -79,7 +88,16 @@ void sign_ipa(
 
 
     if (IsZipFile(ipaPath)) {
-        SystemExec("unzip -qq -n -d '%s' '%s'", outputFile.c_str(), ipaPath.c_str());
+        if (showLog) {
+            ZLog::PrintV("解压中:\t%s\n", ipaPath.c_str());
+        }
+        if (!SystemExec("unzip -qq -n -d '%s' '%s'", outputFile.c_str(), ipaPath.c_str())) {
+            if (showLog) {
+                ZLog::ErrorV("解压失败: %s\n", ipaPath.c_str());
+            }
+            snprintf(error, 1024, "解压失败: %s", ipaPath.c_str());
+            return;
+        }
 //        unzip(ipaPath, tmpFolderPath);
     }
 
@@ -103,6 +121,13 @@ void sign_ipa(
                 appName,
                 iconPath,
                 dylibFilePath,
+                dylibPrefixPath,
+                deletePlugIns != 0,
+                deleteWatchPlugIns != 0,
+                deleteDeviceSupport != 0,
+                deleteSchemeURL != 0,
+                enableFileAccess != 0,
+                sign != 0,
                 force,
                 weakInject,
                 enableCache
@@ -147,91 +172,45 @@ void sign_ipa(
 //        RemoveFolder(tmpFolderPath.c_str());
 //    }
     if (showLog) {
-        timer.PrintResult(bRet, "签名 %s!", bRet ? "OK" : "Failed");
+        if (sign) {
+            timer.PrintResult(bRet, "签名 %s!", bRet ? "OK" : "Failed");
+        } else {
+            timer.PrintResult(bRet, "修改配置 %s!", bRet ? "OK" : "Failed");
+        }
     }
 }
 
 int main() {
-    string keyPath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/key.pem";
+    //使用p12，需要打开openssl3兼容legacy_sect  链接：https://www.practicalnetworking.net/practical-tls/openssl-3-and-legacy-providers/
+    string p12Path = "/Users/lake/dounine/github/rust/rust-zsign/ipa/lake.p12";
+    string p12Password = "1";
     string mpPath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/lake_13_pm.mobileprovision";
-    string ipaPath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/video.ipa";
-    string dylibFilePath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/libs";
+    string ipaPath = "/Users/lake/Downloads/Payload ";
+    string dylibFilePath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/d.dylib";
     string iconPath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/icon.png";
-
-    string tmpFolderPath = "./tmp";
 
     sign_ipa(
             ipaPath.c_str(),
-            keyPath.c_str(),
+            p12Path.c_str(),
+            p12Password.c_str(),
             mpPath.c_str(),
             dylibFilePath.c_str(),
+            "@executable_path/",
             "你好",
             "1.0",
             "com.lake.video",
             iconPath.c_str(),
             "./output.ipa",
-            3,
             true,
+            true,
+            true,
+            true,
+            true,
+            false,
+            3,
+            false,
             true,
             nullptr);
-
-    if (true) {
-        return 0;
-    }
-
-    ZSignAsset zSignAsset;
-    if (!zSignAsset.Init("", keyPath, mpPath, "", "1")) {
-        cerr << "init sign asset failed" << endl;
-        return -1;
-    }
-
-    ZTimer timer;
-    if (tmpFolderPath.empty()) {
-        StringFormat(tmpFolderPath, "/tmp/zsign_folder_%llu_%s", timer.Reset(), GenerateUUID().c_str());
-    }
-
-    CreateFolder(tmpFolderPath.c_str());
-
-//    ZLog::PrintV("signing ipa: %s \n", tmpFolderPath.c_str());
-
-
-    if (IsZipFile(ipaPath)) {
-        SystemExec("unzip -qq -n -d '%s' '%s'", tmpFolderPath.c_str(), ipaPath.c_str());
-//        unzip(ipaPath, tmpFolderPath);
-    }
-
-    string appBundleId;
-    string appVersion;
-    string appName = "你好";
-
-    bool force = false;
-    bool weakInject = false;
-    bool enableCache = false;
-
-    ZAppBundle bundle;
-
-//    bundle.DisableLog();
-
-//    char *error = nullptr;
-
-    bool bRet;
-    try {
-        bRet = bundle.SignFolder(
-                &zSignAsset,
-                tmpFolderPath,
-                appBundleId,
-                appVersion,
-                appName,
-                iconPath,
-                dylibFilePath,
-                force,
-                weakInject,
-                enableCache
-        );
-    } catch (const string e) {
-        cout << "sign failed: " << e << endl;
-    }
-    timer.PrintResult(bRet, "签名%s!", bRet ? "成功" : "失败");
 
     return 0;
 }

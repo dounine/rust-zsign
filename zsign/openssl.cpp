@@ -579,7 +579,7 @@ bool ZSignAsset::Init(const string &strSignerCertFile, const string &strSignerPK
     ReadFile(strProvisionFile.c_str(), m_strProvisionData);
     ReadFile(strEntitlementsFile.c_str(), m_strEntitlementsData);
     if (m_strProvisionData.empty()) {
-        ZLog::Error(">>> Can't Find Provision File!\n");
+        ZLog::Error(">>> 找不到mb描述文件!\n");
         return false;
     }
 
@@ -595,7 +595,7 @@ bool ZSignAsset::Init(const string &strSignerCertFile, const string &strSignerPK
     }
 
     if (m_strTeamId.empty()) {
-        ZLog::Error(">>> Can't Find TeamId!\n");
+        ZLog::Error(">>> 找不到TeamId!\n");
         return false;
     }
 

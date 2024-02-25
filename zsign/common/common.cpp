@@ -342,7 +342,6 @@ bool IsFolderExists(const string &szFolder) {
         return false;
     }
     struct stat st{};
-    ZLog::PrintV("IsFolderExists: %s %i\n", szFolder.c_str(), stat(szFolder.c_str(), &st));
     return 1 == stat(szFolder.c_str(), &st);
 }
 
@@ -696,7 +695,7 @@ uint64_t ZTimer::Print(const char *szFormatArgs, ...) {
 uint64_t ZTimer::PrintResult(bool bSuccess, const char *szFormatArgs, ...) {
     PARSEVALIST(szFormatArgs, szFormat)
     uint64_t uElapse = GetMicroSecond() - m_uBeginTime;
-    ZLog::PrintResultV(bSuccess, "%s (%.03fs)", szFormat, uElapse / 1000000.0);
+    ZLog::PrintResultV(bSuccess, "%s ( %.02fs )", szFormat, uElapse / 1000000.0);
     return Reset();
 }
 

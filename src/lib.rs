@@ -10,7 +10,7 @@ zsign ipa签名
 ```
 use zsign::ZsignBuilder;
 let ipa_path = "./ipa/video.ipa";
-let key_path = "./ipa/key.pem";
+let key_path = "./ipa/lake.p12";
 let mp_path = "./ipa/lake_13_pm.mobileprovision";
 let dylib_file_path = "./ipa/d.dylib";
 let icon_path = "./ipa/icon.png";
