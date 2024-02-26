@@ -12,6 +12,7 @@ fn main() {
     //delete output_path
     std::fs::remove_file(output_path).unwrap_or_default();
     //openssl3 需要兼容低版本p12，否则无法解析p12文件,链接：https://www.practicalnetworking.net/practical-tls/openssl-3-and-legacy-providers/
+    //或者自己把p12文件先转key.pem再给p12_path也可以
     ZsignBuilder::new()
         .app_icon_path(icon_path)
         .app_name("hello")
