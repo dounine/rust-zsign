@@ -16,6 +16,7 @@ typedef unsigned long long int uint64_t;
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <sys/time.h>
 #include <string.h>
 
 #endif
