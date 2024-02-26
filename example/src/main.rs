@@ -1,7 +1,7 @@
 use zsign::ZsignBuilder;
 
 fn main() {
-    let ipa_path = "./ipa/hello.ipa";
+    let ipa_path = "./ipa/video.ipa";
     let p12_path = "./ipa/lake.p12";
     let p12_password = "1";
     let mp_path = "./ipa/lake_13_pm.mobileprovision";

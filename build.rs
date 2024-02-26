@@ -1,5 +1,7 @@
 extern crate cc;
 
+use std::env;
+
 fn env<N: AsRef<str>>(name: N) -> String {
     option_env(name).expect("missing env var")
 }

@@ -188,7 +188,7 @@ void sign_ipa(
     }
 }
 
-int main() {
+int main3() {
     //使用p12，需要打开openssl3兼容legacy_sect  链接：https://www.practicalnetworking.net/practical-tls/openssl-3-and-legacy-providers/
     string p12Path = "/Users/lake/dounine/github/rust/rust-zsign/ipa/lake.p12";
     string p12Password = "1";
