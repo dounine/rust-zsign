@@ -69,6 +69,14 @@ void sign_ipa(
 //        outputFile = tempDir + outputFile;
     }
 
+    if(!IsFileExists(ipaPath.c_str())){
+        if (showLog) {
+            ZLog::ErrorV("ipa file not exists: %s\n", ipaPath.c_str());
+        }
+        snprintf(error, 1024, "ipa file not exists: %s", ipaPath.c_str());
+        return;
+    }
+
     ZSignAsset zSignAsset;
     if (!zSignAsset.Init("", p12Path, mpPath, "", p12Password)) {
         snprintf(error, 1024, "init sign asset failed");
