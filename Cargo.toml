@@ -12,6 +12,10 @@ exclude = ["ipa"]
 
 [workspace]
 members = ["example"]
+[profile.release]
+lto = true
+opt-level = 3
+codegen-units = 1
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]

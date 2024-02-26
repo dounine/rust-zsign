@@ -22,7 +22,7 @@ COPY --from=builder /usr/lib/libstdc++.so.6 /usr/lib/libstdc++.so.6
 COPY --from=builder /usr/lib/libgcc_s.so.1 /usr/lib/libgcc_s.so.1
 COPY --from=builder /lib/ld-musl-aarch64.so.1 /lib/ld-musl-aarch64.so.1
 
-COPY ./ipa /app/ipa
+#COPY ./ipa /app/ipa
 EXPOSE 3000
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["/app/example"]
