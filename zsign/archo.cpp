@@ -577,6 +577,36 @@ uint32_t ZArchO::ReallocCodeSignSpace(const string &strNewFile) {
     return uNewLength;
 }
 
+bool ZArchO::RemoveDyLib(const char *szDyLibPath, bool showLog) {
+    if (nullptr == m_pHeader) {
+        return false;
+    }
+    uint8_t *pLoadCommand = m_pBase + m_uHeaderSize;
+    for (uint32_t i = 0; i < BO(m_pHeader->ncmds); i++) {
+        auto *plc = (load_command *) pLoadCommand;
+        if (LC_LOAD_DYLIB == BO(plc->cmd) || LC_LOAD_WEAK_DYLIB == BO(plc->cmd)) {
+            auto *dlc = (dylib_command *) pLoadCommand;
+            const char *szDyLib = (const char *) (pLoadCommand + BO(dlc->dylib.name.offset));
+            if (0 == strcmp(szDyLib, szDyLibPath)) {
+                uint32_t uLoadCommandSize = BO(plc->cmdsize);
+                uint32_t uLoadCommandOffset = (uint32_t) (pLoadCommand - m_pBase);
+                uint32_t uLoadCommandEnd = uLoadCommandOffset + uLoadCommandSize;
+                uint32_t uLoadCommandsEnd = m_uHeaderSize + BO(m_pHeader->sizeofcmds);
+                uint32_t uLoadCommandsLength = m_uLength - uLoadCommandsEnd;
+                if (uLoadCommandsEnd < uLoadCommandEnd || uLoadCommandsLength <= 0) {
+                    return false;
+                }
+                memmove(pLoadCommand, pLoadCommand + uLoadCommandSize, uLoadCommandsLength);
+                m_pHeader->ncmds = BO(BO(m_pHeader->ncmds) - 1);
+                m_pHeader->sizeofcmds = BO(BO(m_pHeader->sizeofcmds) - uLoadCommandSize);
+                return true;
+            }
+        }
+        pLoadCommand += BO(plc->cmdsize);
+    }
+    return false;
+}
+
 bool ZArchO::InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreate, bool showLog) {
     if (nullptr == m_pHeader) {
         return false;
@@ -614,7 +644,7 @@ bool ZArchO::InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreat
     uint32_t uDyLibCommandSize = sizeof(dylib_command) + uDylibPathLength + uDylibPathPadding;
     if (m_uLoadCommandsFreeSpace > 0 && m_uLoadCommandsFreeSpace < uDyLibCommandSize) // some bin doesn't have '__text'
     {
-        if(showLog){
+        if (showLog) {
             ZLog::Error(
                     "Can't Find Free Space Of LoadCommands For LC_LOAD_DYLIB Or LC_LOAD_WEAK_DYLIB!\n");
         }

@@ -20,6 +20,7 @@ void sign_ipa(
         const char *c_mpPath,//mobileprovision路径
         const char *c_dylibFilePath,//dylib路径,目录也可以
         const char *c_dylibPrefixPath,//dylib注入位置
+        const char *c_removeDylibPath,//删除的dylib路径,多个用逗号分隔
         const char *c_appName,//app名称
         const char *c_appVersion,//app版本
         const char *c_appBundleId,//app包名
@@ -40,6 +41,7 @@ void sign_ipa(
     string p12Path = c_p12Path;
     string p12Password = c_p12Password;
     string mpPath = c_mpPath;
+    string removeDylibPath = c_removeDylibPath;//"@rpath/Lottie.framework/Lottie";
     string outputFile = GetAbsolutPath(c_outputPath);
     string dylibFilePath = c_dylibFilePath;
     string dylibPrefixPath = c_dylibPrefixPath;
@@ -130,6 +132,7 @@ void sign_ipa(
                 iconPath,
                 dylibFilePath,
                 dylibPrefixPath,
+                removeDylibPath,
                 deletePlugIns != 0,
                 deleteWatchPlugIns != 0,
                 deleteDeviceSupport != 0,
@@ -202,8 +205,9 @@ int main3() {
             p12Path.c_str(),
             p12Password.c_str(),
             mpPath.c_str(),
-            dylibFilePath.c_str(),
+            "",//dylibFilePath.c_str(),
             "@executable_path/",
+            "",
             "你好",
             "1.0",
             "com.lake.video",

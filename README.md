@@ -28,5 +28,6 @@ ZsignBuilder::new()
     // .disable_sign()
     // .disable_zip_ipa()
     .build(ipa_path, p12_path, p12_password, mp_path, output_path)
+    .dylib_remove_path("@executable_path/Frameworks/test.dylib,@rpath/test2.dylib")    .sign(ipa_path, key_path, mp_path)
     .unwrap();
 ```

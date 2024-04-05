@@ -23,6 +23,8 @@ public:
 
     bool InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreate,bool showLog);
 
+    bool RemoveDyLib(const char *szDyLibName,bool showLog);
+
 private:
     bool OpenFile(const char *szPath);
 

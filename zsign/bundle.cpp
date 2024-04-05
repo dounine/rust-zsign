@@ -369,6 +369,17 @@ bool ZAppBundle::SignNode(JValue &jvNode, bool sign) {
             macho.InjectDyLib(m_bWeakInject, fPath.c_str(), bForceSign, m_show_log);
         }
     }
+
+    if ("/" == strFolder && !removeDylibPaths.empty()) {
+        for (auto &fPath: removeDylibPaths) {
+            if (m_show_log) {
+                ZLog::PrintV("插件移除:\t%s\n", fPath.c_str());
+            }
+            if (macho.RemoveDyLib(fPath.c_str(), m_show_log)) {
+                ZLog::WarnV("插件移除成功:\t%s\n", fPath.c_str());
+            }
+        }
+    }
 //    if ("/" == strFolder && !m_strDyLibPath.empty()) { //inject dylib
 //        macho.InjectDyLib(m_bWeakInject, m_strDyLibPath.c_str(), bForceSign);
 //    }
@@ -417,6 +428,7 @@ bool ZAppBundle::SignFolder(ZSignAsset *pSignAsset,
                             const string &strIconPath,
                             const string &strDyLibFile,
                             const string &strDylibPrefix,
+                            const string &removeDylibPath,
                             bool deletePlugIns,
                             bool deleteWatchPlugins,
                             bool deleteDeviceSupport,
@@ -698,6 +710,15 @@ bool ZAppBundle::SignFolder(ZSignAsset *pSignAsset,
                     dylibPaths.insert(tmpDyLibPath);
                 }
             }
+        }
+    }
+
+    //将removeDylibPath以逗号分隔的字符串转换为vector给removeDylibPaths
+    if (!removeDylibPath.empty()) {
+        vector<string> removeDylibPathVec;
+        StringSplit(removeDylibPath, ",", removeDylibPathVec);
+        for (auto &file: removeDylibPathVec) {
+            removeDylibPaths.insert(file);
         }
     }
 

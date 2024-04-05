@@ -8,6 +8,7 @@ extern "C" {
         c_mpPath: *const ::std::os::raw::c_char,
         c_dylibFilePath: *const ::std::os::raw::c_char,
         c_dylibPrefixPath: *const ::std::os::raw::c_char,
+        c_removeDylibPath: *const ::std::os::raw::c_char,
         c_appName: *const ::std::os::raw::c_char,
         c_appVersion: *const ::std::os::raw::c_char,
         c_appBundleId: *const ::std::os::raw::c_char,

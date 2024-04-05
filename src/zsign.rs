@@ -3,6 +3,7 @@ use crate::error::ZsignError;
 #[derive(Debug)]
 pub struct ZsignBuilder {
     dylib_file_path: Option<String>,
+    dylib_remove_path: Option<String>,
     dylib_prefix_path: Option<String>,
     app_icon_path: Option<String>,
     app_name: Option<String>,
@@ -29,6 +30,7 @@ impl ZsignBuilder {
     pub fn new() -> Self {
         Self {
             dylib_file_path: None,//动态库路径,如果是目录则会遍历目录下所有dylib文件
+            dylib_remove_path: None,//删除动态库路径,多个用逗号分隔
             dylib_prefix_path: Some("@executable_path/".to_string()),//动态库注入路径,默认为@executable_path/["@executable_path/","@rpath/","@executable_path/Framework/","@rpath/Framework/"]
             app_icon_path: None,//图标
             app_name: None,//名称
@@ -101,6 +103,10 @@ impl ZsignBuilder {
         self.dylib_file_path = Some(dylib_file_path.as_ref().to_string());
         self
     }
+    pub fn dylib_remove_path<T: AsRef<str>>(mut self, dylib_remove_path: T) -> Self {
+        self.dylib_remove_path = Some(dylib_remove_path.as_ref().to_string());
+        self
+    }
     pub fn app_icon_path<T: AsRef<str>>(mut self, app_icon_path: T) -> Self {
         self.app_icon_path = Some(app_icon_path.as_ref().to_string());
         self
@@ -138,6 +144,10 @@ impl ZsignBuilder {
     {
         let dylib_file_path_default = self.dylib_file_path
             .unwrap_or_default();
+        let dylib_remove_path_default = self.dylib_remove_path
+            .unwrap_or_default();
+        let dylib_remove_path = std::ffi::CString::new(dylib_remove_path_default)
+            .map_err(|e| ZsignError::Msg(e.to_string()))?;
         let dylib_prefix_path = std::ffi::CString::new(self.dylib_prefix_path
             .unwrap_or("@executable_path/".to_string()))
             .map_err(|e| ZsignError::Msg(e.to_string()))?;
@@ -217,6 +227,7 @@ impl ZsignBuilder {
                 mp_path.as_ptr(),
                 dylib_file_path.as_ptr(),
                 dylib_prefix_path.as_ptr(),
+                dylib_remove_path.as_ptr(),
                 app_name.as_ptr(),
                 app_version.as_ptr(),
                 app_bundle_id.as_ptr(),

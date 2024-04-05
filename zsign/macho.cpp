@@ -239,14 +239,26 @@ bool ZMachO::ReallocCodeSignSpace() {
     return false;
 }
 
+bool ZMachO::RemoveDyLib(const char *szDyLibName, bool showLog) {
+    for (auto &m_arrArchOe: m_arrArchOes) {
+        if (!m_arrArchOe->RemoveDyLib(szDyLibName, showLog)) {
+            if (showLog) {
+                ZLog::ErrorV("插件删除失败: %s\n", szDyLibName);
+            }
+            throw "插件删除失败: " + string(szDyLibName);
+        }
+    }
+    return true;
+}
+
 bool ZMachO::InjectDyLib(bool bWeakInject, const char *szDyLibPath, bool &bCreate, bool showLog) {
     vector<uint32_t> arrMachOesSizes;
     for (auto &m_arrArchOe: m_arrArchOes) {
         if (!m_arrArchOe->InjectDyLib(bWeakInject, szDyLibPath, bCreate, showLog)) {
             if (showLog) {
-                ZLog::Error("Failed!");
+                ZLog::ErrorV("插件注入失败: %s\n", szDyLibPath);
             }
-            throw "插件注入失败 " + string(szDyLibPath);
+            throw "插件注入失败: " + string(szDyLibPath);
         }
     }
     return true;

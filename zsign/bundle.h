@@ -19,6 +19,7 @@ public:
                     const string &strIconPath,
                     const string &strDyLibFile,
                     const string &strDylibPrefix,
+                    const string &removeDylibPath,
                     bool deletePlugIns,
                     bool deleteWatchPlugins,
                     bool deleteDeviceSupport,
@@ -56,6 +57,7 @@ private:
     bool m_show_log = true;
     string m_strDyLibPath;
     set<string> dylibPaths;
+    set<string> removeDylibPaths;
     ZSignAsset *m_pSignAsset;
 
 public:
