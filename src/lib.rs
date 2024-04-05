@@ -40,11 +40,10 @@ ZsignBuilder::new()
     .app_version("1.0.0")
     .app_bundle_id("com.lake.hello")
     .dylib_file_path(dylib_file_path)
+    .dylib_remove_path("@executable_path/Frameworks/test.dylib,@rpath/test2.dylib")
     // .disable_sign()
     // .disable_zip_ipa()
     .build(ipa_path, p12_path, p12_password, mp_path, output_path)
-    .dylib_remove_path("@executable_path/Frameworks/test.dylib,@rpath/test2.dylib")
-    .sign(ipa_path, key_path, mp_path)
     .unwrap();
 * ```
 */
