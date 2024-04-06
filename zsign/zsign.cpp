@@ -196,7 +196,7 @@ int main3() {
     string p12Path = "/Users/lake/dounine/github/rust/rust-zsign/ipa/lake.p12";
     string p12Password = "1";
     string mpPath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/lake_13_pm.mobileprovision";
-    string ipaPath = "/Users/lake/Downloads/Payload ";
+    string ipaPath = "/Users/lake/Downloads/Payload";
     string dylibFilePath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/d.dylib";
     string iconPath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/icon.png";
 

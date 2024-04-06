@@ -1,13 +1,13 @@
 use zsign::ZsignBuilder;
 
 fn main() {
-    let ipa_path = "./ipa/video.ipa";
+    let ipa_path = "./ipa/hello/Payload";
     let p12_path = "./ipa/lake.p12";
     let p12_password = "1";
     let mp_path = "./ipa/lake_13_pm.mobileprovision";
     let dylib_file_path = "./ipa/d.dylib";
     let icon_path = "./ipa/icon.png";
-    let output_path = "./ipa/output.ipa";
+    let output_path = "./ipa/hello/Payload";
 
     //delete output_path
     std::fs::remove_file(output_path).unwrap_or_default();

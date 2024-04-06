@@ -2,22 +2,22 @@ use crate::error::ZsignError;
 
 #[derive(Debug)]
 pub struct ZsignBuilder {
-    dylib_file_path: Option<String>,
-    dylib_remove_path: Option<String>,
-    dylib_prefix_path: Option<String>,
-    app_icon_path: Option<String>,
-    app_name: Option<String>,
-    app_version: Option<String>,
-    app_bundle_id: Option<String>,
-    delete_plugins: bool,
-    delete_watch_plugins: bool,
-    delete_device_support: bool,
-    delete_scheme_url: bool,
-    enable_file_access: bool,
-    sign: bool,
-    show_log: bool,
-    zip_ipa: bool,
-    zip_level: u8,
+    pub dylib_file_path: Option<String>,
+    pub dylib_remove_path: Option<String>,
+    pub dylib_prefix_path: Option<String>,
+    pub app_icon_path: Option<String>,
+    pub app_name: Option<String>,
+    pub app_version: Option<String>,
+    pub app_bundle_id: Option<String>,
+    pub delete_plugins: bool,
+    pub delete_watch_plugins: bool,
+    pub delete_device_support: bool,
+    pub delete_scheme_url: bool,
+    pub enable_file_access: bool,
+    pub sign: bool,
+    pub show_log: bool,
+    pub zip_ipa: bool,
+    pub zip_level: u8,
 }
 
 unsafe impl Send for ZsignBuilder {}
