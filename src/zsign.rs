@@ -29,22 +29,22 @@ include!("../bindings/bindings.rs");
 impl ZsignBuilder {
     pub fn new() -> Self {
         Self {
-            dylib_file_path: None,//动态库路径,如果是目录则会遍历目录下所有dylib文件
-            dylib_remove_path: None,//删除动态库路径,多个用逗号分隔
-            dylib_prefix_path: Some("@executable_path/".to_string()),//动态库注入路径,默认为@executable_path/["@executable_path/","@rpath/","@executable_path/Framework/","@rpath/Framework/"]
-            app_icon_path: None,//图标
-            app_name: None,//名称
-            app_version: None,//版本
-            app_bundle_id: None,//包id
-            delete_plugins: true,//删除插件
-            delete_watch_plugins: true,//删除watch插件
-            delete_device_support: true,//删除device_support设备限制
-            delete_scheme_url: false,//删除scheme跳转
-            enable_file_access: false,//是否开启文件访问
-            sign: true,//是否签名，还是修改配置
-            show_log: true,//显示zsign日志
-            zip_ipa: true,//是否zip压缩Payload
-            zip_level: 3,//压缩级别
+            dylib_file_path: None,   //动态库路径,如果是目录则会遍历目录下所有dylib文件
+            dylib_remove_path: None, //删除动态库路径,多个用逗号分隔
+            dylib_prefix_path: Some("@executable_path/".to_string()), //动态库注入路径,默认为@executable_path/["@executable_path/","@rpath/","@executable_path/Framework/","@rpath/Framework/"]
+            app_icon_path: None,                                      //图标
+            app_name: None,                                           //名称
+            app_version: None,                                        //版本
+            app_bundle_id: None,                                      //包id
+            delete_plugins: true,                                     //删除插件
+            delete_watch_plugins: true,                               //删除watch插件
+            delete_device_support: true,                              //删除device_support设备限制
+            delete_scheme_url: false,                                 //删除scheme跳转
+            enable_file_access: false,                                //是否开启文件访问
+            sign: true,                                               //是否签名，还是修改配置
+            show_log: true,                                           //显示zsign日志
+            zip_ipa: true,                                            //是否zip压缩Payload
+            zip_level: 3,                                             //压缩级别
         }
     }
     pub fn enable_file_access(mut self) -> Self {
@@ -139,84 +139,81 @@ impl ZsignBuilder {
         self.show_log = false;
         self
     }
-    pub fn build<T>(self, ipa_path: T, p12_path: T, p12_password: T, mp_path: T, output_path: T) -> Result<(), ZsignError>
-        where T: AsRef<str>
+    pub fn build<T>(
+        self,
+        ipa_path: &T,
+        p12_path: &T,
+        p12_password: &T,
+        mp_path: &T,
+        output_path: &T,
+    ) -> Result<(), ZsignError>
+    where
+        T: AsRef<str>,
     {
-        let dylib_file_path_default = self.dylib_file_path
-            .unwrap_or_default();
-        let dylib_remove_path_default = self.dylib_remove_path
-            .unwrap_or_default();
-        let dylib_remove_path = std::ffi::CString::new(dylib_remove_path_default)
-            .map_err(|e| ZsignError::Msg(e.to_string()))?;
-        let dylib_prefix_path = std::ffi::CString::new(self.dylib_prefix_path
-            .unwrap_or("@executable_path/".to_string()))
-            .map_err(|e| ZsignError::Msg(e.to_string()))?;
-        let app_icon_path_default = self.app_icon_path
-            .unwrap_or_default();
-        let ipa_path =
-            std::ffi::CString::new(ipa_path.as_ref()).map_err(|e| ZsignError::Msg(e.to_string()))?;
-        let p12_path =
-            std::ffi::CString::new(p12_path.as_ref()).map_err(|e| ZsignError::Msg(e.to_string()))?;
-        let p12_password =
-            std::ffi::CString::new(p12_password.as_ref()).map_err(|e| ZsignError::Msg(e.to_string()))?;
-        let mp_path =
-            std::ffi::CString::new(mp_path.as_ref()).map_err(|e| ZsignError::Msg(e.to_string()))?;
-        let dylib_file_path = std::ffi::CString::new(dylib_file_path_default)
-            .map_err(|e| ZsignError::Msg(e.to_string()))?;
-        let app_icon_path = std::ffi::CString::new(app_icon_path_default)
-            .map_err(|e| ZsignError::Msg(e.to_string()))?;
-        let output_path = std::ffi::CString::new(output_path.as_ref()).map_err(|e| ZsignError::Msg(e.to_string()))?;
+        use std::ffi::{c_int, CStr, CString};
+        let dylib_file_path_default = self.dylib_file_path.unwrap_or_default();
+        let dylib_remove_path_default = self.dylib_remove_path.unwrap_or_default();
+        let dylib_remove_path =
+            CString::new(dylib_remove_path_default).map_err(ZsignError::from)?;
+        let dylib_prefix_path = CString::new(
+            self.dylib_prefix_path
+                .unwrap_or("@executable_path/".to_string()),
+        )
+        .map_err(|e| ZsignError::Msg(e.to_string()))?;
+        let app_icon_path_default = self.app_icon_path.unwrap_or_default();
+        let ipa_path = CString::new(ipa_path.as_ref()).map_err(ZsignError::from)?;
+        let p12_path = CString::new(p12_path.as_ref()).map_err(ZsignError::from)?;
+        let p12_password = CString::new(p12_password.as_ref()).map_err(ZsignError::from)?;
+        let mp_path = CString::new(mp_path.as_ref()).map_err(ZsignError::from)?;
+        let dylib_file_path = CString::new(dylib_file_path_default).map_err(ZsignError::from)?;
+        let app_icon_path = CString::new(app_icon_path_default).map_err(ZsignError::from)?;
+        let output_path = CString::new(output_path.as_ref()).map_err(ZsignError::from)?;
         let app_name_default = self.app_name.unwrap_or_default();
-        let app_name =
-            std::ffi::CString::new(app_name_default).map_err(|e| ZsignError::Msg(e.to_string()))?;
-        let app_version_default = self.app_version
-            .unwrap_or_default();
-        let app_version =
-            std::ffi::CString::new(app_version_default).map_err(|e| ZsignError::Msg(e.to_string()))?;
-        let app_bundle_id_default = self.app_bundle_id
-            .unwrap_or_default();
-        let app_bundle_id = std::ffi::CString::new(app_bundle_id_default)
-            .map_err(|e| ZsignError::Msg(e.to_string()))?;
-        let zip_level = std::ffi::c_int::from(self.zip_level as i8);
+        let app_name = CString::new(app_name_default).map_err(ZsignError::from)?;
+        let app_version_default = self.app_version.unwrap_or_default();
+        let app_version = CString::new(app_version_default).map_err(ZsignError::from)?;
+        let app_bundle_id_default = self.app_bundle_id.unwrap_or_default();
+        let app_bundle_id = CString::new(app_bundle_id_default).map_err(ZsignError::from)?;
+        let zip_level = c_int::from(self.zip_level as i8);
         let delete_plugins = if self.delete_plugins {
-            std::ffi::c_int::from(1)
+            c_int::from(1)
         } else {
-            std::ffi::c_int::from(0)
+            c_int::from(0)
         };
         let enable_file_access = if self.enable_file_access {
-            std::ffi::c_int::from(1)
+            c_int::from(1)
         } else {
-            std::ffi::c_int::from(0)
+            c_int::from(0)
         };
         let sign = if self.sign {
-            std::ffi::c_int::from(1)
+            c_int::from(1)
         } else {
-            std::ffi::c_int::from(0)
+            c_int::from(0)
         };
         let delete_watch_plugins = if self.delete_watch_plugins {
-            std::ffi::c_int::from(1)
+            c_int::from(1)
         } else {
-            std::ffi::c_int::from(0)
+            c_int::from(0)
         };
         let delete_device_support = if self.delete_device_support {
-            std::ffi::c_int::from(1)
+            c_int::from(1)
         } else {
-            std::ffi::c_int::from(0)
+            c_int::from(0)
         };
         let delete_scheme_url = if self.delete_scheme_url {
-            std::ffi::c_int::from(1)
+            c_int::from(1)
         } else {
-            std::ffi::c_int::from(0)
+            c_int::from(0)
         };
         let zip_ipa = if self.zip_ipa {
-            std::ffi::c_int::from(1)
+            c_int::from(1)
         } else {
-            std::ffi::c_int::from(0)
+            c_int::from(0)
         };
         let show_log = if self.show_log {
-            std::ffi::c_int::from(1)
+            c_int::from(1)
         } else {
-            std::ffi::c_int::from(0)
+            c_int::from(0)
         };
         let mut error_mut: [std::os::raw::c_char; 1024] = [0; 1024];
         unsafe {
@@ -244,7 +241,7 @@ impl ZsignBuilder {
                 show_log,
                 error_mut.as_mut_ptr(),
             );
-            let error_msg = std::ffi::CStr::from_ptr(error_mut.as_ptr())
+            let error_msg = CStr::from_ptr(error_mut.as_ptr())
                 .to_string_lossy()
                 .to_string();
             if error_msg.is_empty() {
@@ -256,5 +253,3 @@ impl ZsignBuilder {
 }
 
 pub fn p12_parse() {}
-
-
