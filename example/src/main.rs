@@ -22,6 +22,6 @@ fn main() {
         .dylib_remove_path("@executable_path/Frameworks/test.dylib")
         // .disable_sign()
         // .disable_zip_ipa()
-        .build(&ipa_path, &p12_path, &p12_password, &mp_path, &output_path)
+        .build(ipa_path, p12_path, p12_password, mp_path, output_path)
         .unwrap();
 }

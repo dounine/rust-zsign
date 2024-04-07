@@ -141,11 +141,11 @@ impl ZsignBuilder {
     }
     pub fn build<T>(
         self,
-        ipa_path: &T,
-        p12_path: &T,
-        p12_password: &T,
-        mp_path: &T,
-        output_path: &T,
+        ipa_path: T,
+        p12_path: T,
+        p12_password: T,
+        mp_path: T,
+        output_path: T,
     ) -> Result<(), ZsignError>
     where
         T: AsRef<str>,
