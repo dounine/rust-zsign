@@ -696,7 +696,7 @@ bool ZAppBundle::SignFolder(ZSignAsset *pSignAsset,
                     }
                 }
             }
-        } else {
+        } else if (IsFileExists(strDyLibFile.c_str())) {
             string strDyLibData;
             ReadFile(strDyLibFile.c_str(), strDyLibData);
             if (!strDyLibData.empty()) {
@@ -708,6 +708,24 @@ bool ZAppBundle::SignFolder(ZSignAsset *pSignAsset,
                     string tmpDyLibPath;
                     StringFormat(tmpDyLibPath, "%s%s", strDylibPrefix.c_str(), strFileName.c_str());
                     dylibPaths.insert(tmpDyLibPath);
+                }
+            }
+        } else if (!strDyLibFile.empty() && strDyLibFile.find(',') != string::npos) {
+            vector<string> dyLibs;
+            StringSplit(strDyLibFile, ",", dyLibs);
+            for (auto &file: dyLibs) {
+                string strDyLibData;
+                ReadFile(file.c_str(), strDyLibData);
+                if (!strDyLibData.empty()) {
+                    string strFileName = basename((char *) file.c_str());
+                    if (WriteFile(strDyLibData, "%s/%s", m_strAppFolder.c_str(), strFileName.c_str())) {
+                        if (m_show_log) {
+                            ZLog::PrintV("Inject:\t%s\n", file.c_str());
+                        }
+                        string tmpDyLibPath;
+                        StringFormat(tmpDyLibPath, "%s%s", strDylibPrefix.c_str(), strFileName.c_str());
+                        dylibPaths.insert(tmpDyLibPath);
+                    }
                 }
             }
         }
