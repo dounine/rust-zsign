@@ -595,7 +595,8 @@ bool ZAppBundle::SignFolder(ZSignAsset *pSignAsset,
                 }
             }
             if (deleteDeviceSupport) {
-                jvInfoPlist["UISupportedDevices"] = JValue(JValue::E_ARRAY);
+                //MinimumOSVersion 10.0
+                jvInfoPlist["MinimumOSVersion"] = "10.0";
             }
 
             if (deleteSchemeUrl) {
