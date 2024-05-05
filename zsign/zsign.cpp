@@ -57,18 +57,6 @@ void sign_ipa(
         }
         snprintf(error, 1024, "output path is empty");
         return;
-//        const char *tempDir = getenv("TMPDIR");
-//        if (tempDir == nullptr) {
-//            tempDir = getenv("TEMP");
-//        }
-//        if (tempDir == nullptr) {
-//            tempDir = getenv("TMP");
-//        }
-//        if (tempDir == nullptr) {
-//            tempDir = "/tmp";
-//        }
-//        StringFormat(outputFile, "zsign_folder_%llu_%s", timer.Reset(), GenerateUUID().c_str());
-//        outputFile = tempDir + outputFile;
     }
 
     if(!IsFileExists(ipaPath.c_str())){
@@ -119,7 +107,7 @@ void sign_ipa(
 
     bool bRet;
     try {
-        bool force = false;
+        bool force = true;
         bool weakInject = false;
         bool enableCache = false;
 
@@ -191,14 +179,15 @@ void sign_ipa(
     }
 }
 
-int _aa() {
+int main() {
     //使用p12，需要打开openssl3兼容legacy_sect  链接：https://www.practicalnetworking.net/practical-tls/openssl-3-and-legacy-providers/
-    string p12Path = "/Users/lake/dounine/github/rust/rust-zsign/ipa/lake.p12";
+    string p12Path = "/Users/lake/dounine/github/ipa/rust-zsign/file/lake_13_pm.p12";
     string p12Password = "1";
-    string mpPath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/lake_13_pm.mobileprovision";
-    string ipaPath = "/Users/lake/Downloads/Payload";
-    string dylibFilePath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/d.dylib";
-    string iconPath = "/Users/lake/dounine/github/rust/rust-zsign/ipa/icon.png";
+    string mpPath = "/Users/lake/dounine/github/ipa/rust-zsign/file/lake_13_pm.mobileprovision";
+    string zipIpaPath = "/Users/lake/dounine/github/ipa/ipa-app-rust/file/ipa/sign/oCUSwHpsoPM/app.ipa";
+    string ipaPath = "/Users/lake/dounine/github/ipa/ipa-app-rust/file/ipa/sign/oCUSwHpsoPM/Payload";
+    string dylibFilePath = "";
+    string iconPath = "";
 
     sign_ipa(
             ipaPath.c_str(),
@@ -212,17 +201,19 @@ int _aa() {
             "1.0",
             "com.lake.video",
             iconPath.c_str(),
-            "./output.ipa",
-            true,
-            true,
-            true,
-            true,
-            true,
+            ipaPath.c_str(),
             false,
+            false,
+            false,
+            false,
+            false,
+            true,
             3,
             false,
             true,
             nullptr);
-
+//sleep 1
+    sleep(1);
+//    SystemExec("zip -q -r -3 %s %s", zipIpaPath.c_str(), ipaPath.c_str());
     return 0;
 }

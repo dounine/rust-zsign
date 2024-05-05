@@ -308,7 +308,7 @@ bool ZAppBundle::SignNode(JValue &jvNode, bool sign) {
     string strExePath = strBaseFolder + "/" + strBundleExe;
 
     if (m_show_log) {
-        ZLog::PrintV("签名目录:\t(%s)\n",
+        ZLog::PrintV("签名目录:\t(%s, [%s])\n",
                      ("/" == strFolder) ? basename((char *) m_strAppFolder.c_str()) : strFolder.c_str(),
                      strBundleExe.c_str());
     }
@@ -328,7 +328,10 @@ bool ZAppBundle::SignNode(JValue &jvNode, bool sign) {
     }
 
     if (m_bForceSign || jvCodeRes.isNull()) { //create
-        GenerateCodeResources(strBaseFolder, jvCodeRes);
+        if (!GenerateCodeResources(strBaseFolder, jvCodeRes)) {
+            ZLog::ErrorV("from sign.ipadump.com>>> Create CodeResources Failed! %s\n", strBaseFolder.c_str());
+            return false;
+        }
     } else if (jvNode.has("changed")) { //use existsed
         for (size_t i = 0; i < jvNode["changed"].size(); i++) {
             string strFile = jvNode["changed"][i].asCString();
@@ -488,7 +491,7 @@ bool ZAppBundle::SignFolder(ZSignAsset *pSignAsset,
                 string strOldBundleID = jvInfoPlist["CFBundleIdentifier"];//原始BundleID
                 jvInfoPlist["CFBundleIdentifier"] = strBundleID;//新BundleID
                 if (m_show_log) {
-                    ZLog::PrintV("AppBundleId: %s -> %s\n", strOldBundleID.c_str(),
+                    ZLog::PrintV("BundleId: %s -> %s\n", strOldBundleID.c_str(),
                                  strBundleID.c_str());
                 }
 
@@ -758,6 +761,9 @@ bool ZAppBundle::SignFolder(ZSignAsset *pSignAsset,
                     m_strAppFolder.c_str());
         }
         throw "Info.plist 文件中无法获取BundleID,BundleVersion或者BundleExecute";
+    }
+    if (!GetObjectsToSign(m_strAppFolder, jvRoot)) {
+        return false;
     }
     GetNodeChangedFiles(jvRoot);
 //    } else {
