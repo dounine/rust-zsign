@@ -270,7 +270,6 @@ bool ZAppBundle::SignNode(JValue &jvNode, bool sign) {
     if (jvNode.has("files")) {
         for (size_t i = 0; i < jvNode["files"].size(); i++) {
             const char *szFile = jvNode["files"][i].asCString();
-            ZLog::PrintV("SignFile: \t%s\n", szFile);
             ZMachO macho;
             if (!macho.InitV("%s/%s", m_strAppFolder.c_str(), szFile)) {
                 return false;
