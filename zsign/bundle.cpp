@@ -614,7 +614,7 @@ bool ZAppBundle::SignFolder(ZSignAsset *pSignAsset,
                 string strOldBundleVersion = jvInfoPlist["CFBundleShortVersionString"];
                 jvInfoPlist["CFBundleShortVersionString"] = strBundleVersion;
                 if (m_show_log) {
-                    ZLog::PrintV("AppBundleVersion: %s -> %s\n", strOldBundleVersion.c_str(),
+                    ZLog::PrintV("AppBundleVersion版本修改: %s -> %s\n", strOldBundleVersion.c_str(),
                                  strBundleVersion.c_str());
                 }
             }
