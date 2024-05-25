@@ -8,7 +8,7 @@ repository = "https://github.com/dounine/rust-zsign"
 license = "MIT"
 build = "build.rs"
 
-exclude = ["ipa"]
+exclude = ["ipa", "file"]
 
 [workspace]
 members = ["example"]

@@ -1,6 +1,7 @@
 cmake-build-debug/
 build/
 ipa/
+file/
 .idea/
 .xmake/
 .zsign_cache/
