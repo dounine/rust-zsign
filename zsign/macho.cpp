@@ -146,7 +146,7 @@ bool ZMachO::Sign(ZSignAsset *pSignAsset, bool bForce, string strBundleId, strin
 }
 
 bool ZMachO::ReallocCodeSignSpace() {
-    ZLog::Warn("Realloc CodeSignature Space... \n");
+    ZLog::WarnV("Realloc CodeSignature Space... \n");
 
     vector<uint32_t> arrMachOesSizes;
     for (size_t i = 0; i < m_arrArchOes.size(); i++) {
@@ -154,7 +154,7 @@ bool ZMachO::ReallocCodeSignSpace() {
         StringFormat(strNewArchOFile, "%s.archo.%d", m_strFile.c_str(), i);
         uint32_t uNewLength = m_arrArchOes[i]->ReallocCodeSignSpace(strNewArchOFile);
         if (uNewLength <= 0) {
-            ZLog::Error("Failed!\n");
+            ZLog::ErrorV("Failed!\n");
             return false;
         }
         arrMachOesSizes.push_back(uNewLength);

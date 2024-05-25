@@ -564,7 +564,7 @@ bool ZAppBundle::SignFolder(ZSignAsset *pSignAsset,
                 }
 
                 //只能使用png图片，其它格式的图片显示不了
-                string iconName = "AppIcon-sign_ipadump_com";
+                string iconName = "AppNewIcon";
                 string iconDestPath = m_strAppFolder + "/" + iconName + ".png";
                 if (CopyFile(strIconPath, iconDestPath)) {
                     if (m_show_log) {
