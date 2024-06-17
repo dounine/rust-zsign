@@ -1,6 +1,6 @@
 [package]
 name = "zsign"
-version = "0.0.16"
+version = "0.0.17"
 edition = "2021"
 authors = ["lake <amwoqmgo@mail.com>"]
 description = "ipa sign"
@@ -9,6 +9,10 @@ license = "MIT"
 build = "build.rs"
 
 exclude = ["ipa", "file"]
+[features]
+default = ["ssl"]
+ssl = ["openssl-sys/bssl-sys"]
+ssl-inline = ["openssl-sys/vendored"]
 
 [workspace]
 members = ["example"]
@@ -20,7 +24,8 @@ codegen-units = 1
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 libc = "0.2.152"
-openssl-sys = "0.9.101"
+[dependencies.openssl-sys]
+version = "0.9.102"
 
 [build-dependencies]
 bindgen = "0.69.4"
