@@ -11,7 +11,7 @@ build = "build.rs"
 exclude = ["ipa", "file"]
 [features]
 default = ["ssl"]
-ssl = ["openssl-sys/bssl-sys"]
+ssl = ["openssl-sys/bindgen"]
 ssl-inline = ["openssl-sys/vendored"]
 
 [workspace]
