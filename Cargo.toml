@@ -1,6 +1,6 @@
 [package]
 name = "zsign"
-version = "0.0.18"
+version = "0.0.19"
 edition = "2021"
 authors = ["lake <amwoqmgo@mail.com>"]
 description = "ipa sign"
@@ -10,9 +10,8 @@ build = "build.rs"
 
 exclude = ["ipa", "file"]
 [features]
-default = ["ssl"]
-ssl = ["openssl-sys/bindgen"]
-ssl-inline = ["openssl-sys/vendored"]
+default = []
+ssl-vendored = ["openssl-sys/vendored"]
 
 [workspace]
 members = ["example"]
